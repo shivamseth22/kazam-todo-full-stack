@@ -1,19 +1,49 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const SignIn = () => {
+    const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Add login logic here (API call)
-    console.log("Login data:", formData);
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch("https://kazam-todo-full-stack.onrender.com/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Login failed");
+    }
+
+    console.log("Login successful:", data);
+
+    router.push("/");
+    // TODO: Save token to localStorage or context
+    // localStorage.setItem("token", data.token);
+
+    // Redirect user to dashboard or homepage
+    // router.push("/dashboard");
+
+  } catch (error: any) {
+    console.error("Login error:", error.message);
+    alert(error.message);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
