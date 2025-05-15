@@ -69,9 +69,9 @@ export const loginUser = async (req, res) => {
     // Set token in HTTP-only cookie with secure flags
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",  // only true on HTTPS in prod
-      sameSite: "strict",
-       path: "/",
+      secure: true,
+      sameSite: "none",
+      path: "/",
     });
 
     // Do NOT send the password back in response, pick only safe fields
