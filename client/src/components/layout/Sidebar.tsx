@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -22,11 +21,7 @@ const Sidebar = () => {
     { label: "Profile", icon: User, path: "/auth/profile" },
   ];
 
-  const getLinkClass = (path: string) => {
-    return pathname === path
-      ? "bg-blue-100 text-blue-600 font-semibold"
-      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
-  };
+
 
   return (
     <aside
@@ -38,10 +33,7 @@ const Sidebar = () => {
       <div className="flex items-center justify-between p-4 border-b">
         {!collapsed && (
           <div className="flex space-x-2 justify-center items-center">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-            </Avatar>
-            <h2>Shivam Seth</h2>
+            LOGO
           </div>
         )}
         <button

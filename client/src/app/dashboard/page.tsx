@@ -10,17 +10,18 @@ import {
   useUpdateTodo,
   useGetAllTodos,
 } from "@/api-handling/todo/todos_api";
+import {  Todo } from "@/interface/todo.type";
 
 const TodoDashboard = () => {
   const [filter, setFilter] = useState("all");
-  const [draggedTodo, setDraggedTodo] = useState<any | null>(null);
+  const [draggedTodo, setDraggedTodo] = useState<Todo | null>(null);
 
   const { data: todos = [], isLoading } = useGetAllTodos();
   const createMutation = useCreateTodo();
   const deleteMutation = useDeleteTodo();
   const updateMutation = useUpdateTodo();
 
-  const handleAddTodo = (newTodo: any) => {
+  const handleAddTodo = (newTodo: Todo) => {
     createMutation.mutate(newTodo);
   };
 
@@ -33,7 +34,7 @@ const TodoDashboard = () => {
     updateMutation.mutate({ id, updateData: { status: newStatus } });
   };
 
-  const handleDragStart = (todo: any) => {
+  const handleDragStart = (todo: Todo) => {
     setDraggedTodo(todo);
   };
 
@@ -96,7 +97,10 @@ const TodoDashboard = () => {
                 onDragOver={(e) => e.preventDefault()}
               >
                 <TodoCard
-                  todo={todo}
+                  todo={{
+                    ...todo,
+                    id: Number(todo._id),
+                  }}
                   onDelete={() => handleDelete(todo._id)}
                   toggleStatus={() => toggleStatus(todo._id, todo.status)}
                 />
@@ -105,9 +109,11 @@ const TodoDashboard = () => {
           ) : (
             <div className="flex flex-col my-40 items-center justify-center py-16 text-gray-500">
               <ClipboardList className="w-12 h-12 mb-4 text-gray-400" />
-              <h3 className="text-lg font-semibold">You're all caught up!</h3>
+              <h3 className="text-lg font-semibold">
+                You&apos;re all caught up!
+              </h3>
               <p className="text-sm mt-1">
-                No todos yet. Click "Add Todo" to create one.
+                No todos yet. Click &quot;Add Todo&quot; to create one.
               </p>
             </div>
           )}

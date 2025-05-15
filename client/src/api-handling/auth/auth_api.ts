@@ -30,7 +30,7 @@ export const useLoginMutation = (setError: (msg: string) => void) => {
     onSuccess: () => {
       router.replace("/dashboard");
     },
-    onError: (err: any) => {
+    onError: (err) => {
       setError(err.message);
     },
   });
@@ -46,7 +46,7 @@ export const useRegisterMutation = (
       alert("Signup successful! Please login.");
       setIsLogin(true);
     },
-    onError: (err: any) => {
+    onError: (err) => {
       setError(err.message);
     },
   });

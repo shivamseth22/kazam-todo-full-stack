@@ -3,6 +3,7 @@ import {
   createTodo,
   deleteTodo,
   getTodos,
+  Todo,
   updateTodo,
 } from "./todo_api_fetcher";
 
@@ -29,7 +30,7 @@ export const useCreateTodo = () => {
 export const useUpdateTodo = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, updateData }: { id: string; updateData: any }) =>
+    mutationFn: ({ id, updateData }: { id: string; updateData:Partial<Todo> }) =>
       updateTodo(id, updateData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
