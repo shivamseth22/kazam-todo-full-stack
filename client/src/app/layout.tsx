@@ -31,7 +31,7 @@ export default function RootLayout({
       >
             <TanstackQueryProvider>
               <div className="flex">
-                 <Sidebar/>
+                 {/* <Sidebar/> */}
                  <div className="flex-1">
                      {children}
                  </div>

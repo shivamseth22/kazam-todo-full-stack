@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
 import userModel from '../model/user.model.js';
 import blackListedTokenModel from '../model/blackListedToken.model.js';
+import dotenv from 'dotenv';
+dotenv.config();
+
+
+const JWT_SECRET = process.env.JWT_SECRET || "this is a secret"
 
 export const authUser = async (req, res, next) => {
   console.log("Inside the auth middleware");
@@ -20,7 +25,7 @@ export const authUser = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized: Token is blacklisted" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     console.log("Decoded:", decoded);
 
     const user = await userModel.findById(decoded._id);

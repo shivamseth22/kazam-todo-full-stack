@@ -36,7 +36,7 @@ userRouter
 
 //route to logout a user
 userRouter
-    .get('/logout', authUser, logoutUser)
+   .post('/logout', authUser, logoutUser);
 
 
 

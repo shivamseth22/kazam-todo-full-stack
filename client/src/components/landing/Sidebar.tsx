@@ -17,9 +17,9 @@ const Sidebar = () => {
   const toggleSidebar = () => setCollapsed(!collapsed);
 
   const menuItems = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/" },
+    { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { label: "Settings", icon: Settings, path: "/settings" },
-    { label: "Profile", icon: User, path: "/profile" },
+    { label: "Profile", icon: User, path: "/auth/profile" },
   ];
 
   const getLinkClass = (path: string) => {

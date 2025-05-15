@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-const jwt_secret = process.env.JWT_SECRET;
+const jwt_secret = process.env.JWT_SECRET || "this is a secret";
 
 // Schema of the user
 const userSchema = new mongoose.Schema({

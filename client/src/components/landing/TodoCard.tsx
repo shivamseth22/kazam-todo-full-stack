@@ -8,13 +8,11 @@ import { format } from "date-fns";
 const TodoCard = ({
   todo,
   onDelete,
-  onComplete,
-  onStatusChange,
+  toggleStatus,
 }: {
   todo: any;
   onDelete: (id: number) => void;
-  onComplete: (id: number) => void;
-  onStatusChange: (id: number, status: string) => void;
+  toggleStatus: (id: number , status:string) => void;
 }) => {
   return (
     <Card
@@ -38,7 +36,7 @@ const TodoCard = ({
             <select
               className="ml-2 text-sm border rounded p-1"
               value={todo.status}
-              onChange={(e) => onStatusChange(todo.id, e.target.value)}
+              onChange={(e) => toggleStatus(todo.id , e.target.value)}
             >
               <option value="pending">Pending</option>
               <option value="completed">Completed</option>
@@ -49,7 +47,7 @@ const TodoCard = ({
 
       <div className="space-x-2">
         {todo.status === "pending" && (
-          <Button size="sm" className="bg-green-600 text-white" onClick={() => onComplete(todo.id)}>
+          <Button size="sm" className="bg-green-600 text-white" onClick={() => toggleStatus(todo.id, todo.status)}>
             Mark Completed
           </Button>
         )}
