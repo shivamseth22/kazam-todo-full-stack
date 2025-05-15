@@ -1,3 +1,4 @@
+"use client"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, logoutUser, User } from "./auth_api_fetcher";
 
