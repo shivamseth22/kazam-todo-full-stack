@@ -16,7 +16,6 @@ const AuthLayout = () => {
 
 
   const loginMutation = useLoginMutation(setError, router);
-
   const registerMutation = useRegisterMutation(setError, setIsLogin);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

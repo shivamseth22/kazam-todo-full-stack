@@ -30,9 +30,9 @@ export const useLoginMutation = (
   return useMutation({
     mutationFn: loginUser,
     onSuccess: () => {
-      router.replace("/dashboard"); 
+      router.replace("/dashboard");
     },
-    onError: (err: any) => {
+    onError: (err) => {
       setError(err.message || "Something went wrong");
     },
   });
