@@ -25,8 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
-app.use("/todo" , todoRoute )
-app.use("/users" , userRouter)
+app.use("/todo", authUser, todoRoute)
+app.use("/users", userRouter)
 
 
 app.get('/', (req, res) => {

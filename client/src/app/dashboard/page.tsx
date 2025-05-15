@@ -1,127 +1,55 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Sidebar from "@/components/landing/Sidebar";
+import React, { useState } from "react";
 import AddTodomodel from "@/components/landing/AddTodoModal";
 import TodoCard from "@/components/landing/TodoCard";
 import { ClipboardList } from "lucide-react";
+import {
+  useCreateTodo,
+  useDeleteTodo,
+  useUpdateTodo,
+  useGetAllTodos,
+} from "@/api-handling/todo/todos_api";
 
 const TodoDashboard = () => {
-  const [todos, setTodos] = useState<any[]>([]);
-  const [filter, setFilter] = useState("all"); // "all", "pending", "completed"
+  const [filter, setFilter] = useState("all");
   const [draggedTodo, setDraggedTodo] = useState<any | null>(null);
 
-  // // Load todos on component mount
-  useEffect(() => {
-    fetchTodos();
-  }, []);
+  const { data: todos = [], isLoading } = useGetAllTodos();
+  const createMutation = useCreateTodo();
+  const deleteMutation = useDeleteTodo();
+  const updateMutation = useUpdateTodo();
 
-  const fetchTodos = async () => {
-    try {
-      const res = await fetch("http://localhost:3001/todo/all", {
-        method: "GET",
-        credentials: "include", // send cookies
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setTodos(data.todos);
-      } else {
-        console.error("Failed to fetch todos:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching todos:", error);
-    }
+  const handleAddTodo = (newTodo: any) => {
+    createMutation.mutate(newTodo);
   };
 
-  // Create todo API
-  const createTodo = async (newTodoData: any) => {
-    try {
-      const res = await fetch("http://localhost:3001/todo/create", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTodoData),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setTodos((prev) => [...prev, data.todo]);
-      } else {
-        alert(data.message || "Failed to create todo");
-      }
-    } catch (error) {
-      console.error("Error creating todo:", error);
-    }
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id);
   };
-
-  // Update todo API (status, completed)
-  const updateTodo = async (id: string, updateData: any) => {
-    try {
-      const res = await fetch(`http://localhost:3001/todo/${id}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        console.log("updated");
-        setTodos((prev) => prev.map((t) => (t._id === id ? data.todo : t)));
-      } else {
-        alert(data.message || "Failed to update todo");
-      }
-    } catch (error) {
-      console.error("Error updating todo:", error);
-    }
-  };
-
-  // Delete todo API
-  const deleteTodo = async (id: string) => {
-    try {
-      const res = await fetch(`http://localhost:3001/todo/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setTodos((prev) => prev.filter((t) => t._id !== id));
-      } else {
-        alert(data.message || "Failed to delete todo");
-      }
-    } catch (error) {
-      console.error("Error deleting todo:", error);
-    }
-  };
-
-  // Handler wrappers to integrate with your UI components
-  const handleAddTodo = (newTodo: any) => createTodo(newTodo);
-
-  const handleDelete = (id: string) => deleteTodo(id);
 
   const toggleStatus = (id: string, status: string) => {
     const newStatus = status === "completed" ? "pending" : "completed";
-    updateTodo(id, { status: newStatus });
+    updateMutation.mutate({ id, updateData: { status: newStatus } });
   };
 
-  // Drag & drop handlers (optional: update order in backend if needed)
   const handleDragStart = (todo: any) => {
     setDraggedTodo(todo);
   };
 
   const handleDrop = (targetId: string) => {
     if (draggedTodo) {
-      const newTodos = [...todos];
-      const draggedIndex = newTodos.findIndex((t) => t._id === draggedTodo._id);
-      const targetIndex = newTodos.findIndex((t) => t._id === targetId);
+      const draggedIndex = todos.findIndex((t) => t._id === draggedTodo._id);
+      const targetIndex = todos.findIndex((t) => t._id === targetId);
+      if (draggedIndex === -1 || targetIndex === -1) return;
 
-      // Swap the dragged item with the target item
+      const newTodos = [...todos];
       [newTodos[draggedIndex], newTodos[targetIndex]] = [
         newTodos[targetIndex],
         newTodos[draggedIndex],
       ];
-
-      setTodos(newTodos);
+      // Optionally send new order to backend here
       setDraggedTodo(null);
-      // Optionally, send new order to backend here
     }
   };
 
@@ -140,35 +68,24 @@ const TodoDashboard = () => {
 
         {/* Filter Section */}
         <div className="flex space-x-4 my-4">
-          <button
-            className={`px-4 py-2 ${
-              filter === "all" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setFilter("all")}
-          >
-            All
-          </button>
-          <button
-            className={`px-4 py-2 ${
-              filter === "pending" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setFilter("pending")}
-          >
-            Pending
-          </button>
-          <button
-            className={`px-4 py-2 ${
-              filter === "completed" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setFilter("completed")}
-          >
-            Completed
-          </button>
+          {["all", "pending", "completed"].map((f) => (
+            <button
+              key={f}
+              className={`px-4 py-2 ${
+                filter === f ? "bg-blue-600 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => setFilter(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
         </div>
 
-        {/* Todo Cards with Drag-and-Drop */}
+        {/* Todo Cards */}
         <div className="space-y-4">
-          {filteredTodos.length > 0 ? (
+          {isLoading ? (
+            <div>Loading todos...</div>
+          ) : filteredTodos.length > 0 ? (
             filteredTodos.map((todo) => (
               <div
                 key={todo._id}
@@ -181,7 +98,7 @@ const TodoDashboard = () => {
                 <TodoCard
                   todo={todo}
                   onDelete={() => handleDelete(todo._id)}
-                   toggleStatus={() => toggleStatus(todo._id, todo.status)}
+                  toggleStatus={() => toggleStatus(todo._id, todo.status)}
                 />
               </div>
             ))
