@@ -1,54 +1,28 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
-
-
-interface User {
-  name: string;
-  email: string;
- }
-
+import { useGetProfile, useLogout } from "@/api-handling/auth/auth_api";
 
 const Profile = () => {
   const router = useRouter();
-
-  const [loading, setLoading] = useState<boolean>(true);
-  const [userData, setUserData] = useState<User | null >(null);
+  const { data: userData, isLoading, isError } = useGetProfile();
+  const logoutMutation = useLogout();
 
   useEffect(() => {
-    fetch("http://localhost:3001/users/profile", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          router.push("/");
-          return;
-        }
-        const data = await res.json();
-        setUserData(data.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        router.push("/");
-      });
-  }, [router]);
-
-
+    if (isError) {
+      router.push("/");
+    }
+  }, [isError, router]);
 
   const handleLogout = () => {
-    fetch("http://localhost:3001/users/logout", {
-      method: "POST",
-      credentials: "include",
-    }).finally(() => {
-
-      router.push("/");
+    logoutMutation.mutate(undefined, {
+      onSettled: () => router.push("/"),
     });
   };
 
-  if (loading)
+  if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
         <svg
@@ -74,11 +48,11 @@ const Profile = () => {
         <p className="text-gray-600 text-lg font-medium">Loading profile...</p>
       </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full space-y-4">
-
         <div className="bg-white p-6 rounded-lg shadow-md w-full">
           {/* Profile Header */}
           <div className="flex items-center justify-between">
@@ -91,7 +65,6 @@ const Profile = () => {
                 <p className="text-gray-500">{userData?.email}</p>
               </div>
             </div>
-
             <button
               onClick={handleLogout}
               className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
@@ -102,15 +75,16 @@ const Profile = () => {
 
           {/* Profile Details */}
           <div className="mt-8">
-            <h3 className="text-lg font-semibold text-gray-700">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-gray-700">
+              Personal Information
+            </h3>
             <div className="mt-4 space-y-4">
               <div className="flex flex-col space-y-1">
                 <label className="text-gray-600">Name</label>
                 <input
-                readOnly
+                  readOnly
                   type="text"
-                  name="name"
-                  value={userData?.email.split("@")[0]}
+                  value={userData?.name}
                   className="px-3 py-2 border rounded-md text-gray-700"
                 />
               </div>
@@ -118,17 +92,13 @@ const Profile = () => {
               <div className="flex flex-col space-y-1">
                 <label className="text-gray-600">Email</label>
                 <input
-                readOnly
+                  readOnly
                   type="email"
-                  name="email"
                   value={userData?.email}
                   className="px-3 py-2 border rounded-md text-gray-700"
-
                 />
               </div>
             </div>
-
-
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import AddTodomodel from "@/components/landing/AddTodoModal";
-import TodoCard from "@/components/landing/TodoCard";
+import AddTodomodel from "@/components/todo/AddTodoModal";
+import TodoCard from "@/components/todo/TodoCard";
 import { ClipboardList } from "lucide-react";
 import {
   useCreateTodo,

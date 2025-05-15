@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import AddTodomodel from "./AddTodoModal";
-import TodoCard from "./TodoCard";
+import Sidebar from "../layout/Sidebar";
+import AddTodomodel from "../todo/AddTodoModal";
+import TodoCard from "../todo/TodoCard";
 import { ClipboardList } from "lucide-react";
 
 const TodoDashboard = () => {

@@ -1,23 +1,19 @@
-"use client";
+'use client';
 
-import { Lock, Mail, User } from "lucide-react";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useLoginMutation, useRegisterMutation } from '@/api-handling/auth/auth_api';
+import { Lock, Mail } from 'lucide-react';
+import React, { useState } from 'react';
 
 const AuthLayout = () => {
-  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-
-  // Form data state
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
-
-  // For showing loading state or errors (optional)
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const loginMutation = useLoginMutation(setError);
+  const registerMutation = useRegisterMutation(setError, setIsLogin);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -26,56 +22,27 @@ const AuthLayout = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
-    try {
-      const endpoint = isLogin ? "/users/login" : "/users/register";
-      const payload = isLogin
-        ? {
-            email: formData.email,
-            password: formData.password,
-          }
-        : {
-            fullName: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-          };
-
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // if your backend uses cookies/session
-        body: JSON.stringify(payload),
+    if (isLogin) {
+      loginMutation.mutate({
+        email: formData.email,
+        password: formData.password,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
-
-      // Success logic: redirect or show message
-      if (isLogin) {
-        router.replace("/dashboard"); // redirect after login
-      } else {
-        alert("Signup successful! Please login.");
-        setIsLogin(true);
-      }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    } else {
+      registerMutation.mutate({
+        email: formData.email,
+        password: formData.password,
+      });
     }
   };
 
+
   return (
     <div className="min-h-screen flex bg-gradient-to-tr from-green-50 to-green-200 font-sans">
-      {/* Left Side - Info */}
+      {/* Left Side */}
       <div className="hidden md:flex w-1/2 bg-gradient-to-br from-green-700 via-green-600 to-green-800 text-white flex-col justify-center px-20 py-24 space-y-8">
         <h1 className="text-6xl font-extrabold tracking-wide drop-shadow-lg">
           Organize Your Life
@@ -92,21 +59,17 @@ const AuthLayout = () => {
           <li>Organize tasks by category & priority</li>
         </ul>
       </div>
-
-      {/* Right Side - Login / Signup */}
+      {/* Right Side - Auth */}
       <div className="flex w-full md:w-1/2 justify-center items-center px-8 py-20 bg-white shadow-lg rounded-l-3xl">
         <div className="max-w-md w-full">
-          {/* Toggle Buttons */}
           <div className="flex justify-center mb-10 space-x-8 border-b border-gray-300">
             <button
               onClick={() => {
                 setIsLogin(true);
                 setError(null);
               }}
-              className={`relative pb-3 font-semibold text-xl transition-colors ${
-                isLogin
-                  ? "text-green-700 after:absolute after:-bottom-1 after:left-0 after:w-full after:h-1 after:bg-green-700"
-                  : "text-gray-400 hover:text-green-600"
+              className={`pb-3 font-semibold text-xl ${
+                isLogin ? 'text-green-700 border-b-2 border-green-700' : 'text-gray-400'
               }`}
             >
               Login
@@ -116,10 +79,8 @@ const AuthLayout = () => {
                 setIsLogin(false);
                 setError(null);
               }}
-              className={`relative pb-3 font-semibold text-xl transition-colors ${
-                !isLogin
-                  ? "text-green-700 after:absolute after:-bottom-1 after:left-0 after:w-full after:h-1 after:bg-green-700"
-                  : "text-gray-400 hover:text-green-600"
+              className={`pb-3 font-semibold text-xl ${
+                !isLogin ? 'text-green-700 border-b-2 border-green-700' : 'text-gray-400'
               }`}
             >
               Sign Up
@@ -128,7 +89,6 @@ const AuthLayout = () => {
 
           {/* Form */}
           <form className="space-y-6" onSubmit={handleSubmit}>
-            
 
             <div className="relative">
               <Mail className="absolute left-3 top-3 text-green-600" />
@@ -139,9 +99,10 @@ const AuthLayout = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500"
               />
             </div>
+
             <div className="relative">
               <Lock className="absolute left-3 top-3 text-green-600" />
               <input
@@ -151,20 +112,22 @@ const AuthLayout = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-green-500"
               />
             </div>
 
-            {error && (
-              <p className="text-red-600 text-center font-semibold">{error}</p>
-            )}
+            {error && <p className="text-red-600 text-center">{error}</p>}
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-lg shadow-md transition disabled:opacity-50"
+              disabled={loginMutation.isPending || registerMutation.isPending}
+              className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition"
             >
-              {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
+              {loginMutation.isPending || registerMutation.isPending
+                ? 'Please wait...'
+                : isLogin
+                ? 'Login'
+                : 'Sign Up'}
             </button>
           </form>
         </div>
