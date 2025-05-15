@@ -2,9 +2,11 @@
 
 import { useLoginMutation, useRegisterMutation } from '@/api-handling/auth/auth_api';
 import { Lock, Mail } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 const AuthLayout = () => {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -12,7 +14,9 @@ const AuthLayout = () => {
   });
   const [error, setError] = useState<string | null>(null);
 
-  const loginMutation = useLoginMutation(setError);
+
+  const loginMutation = useLoginMutation(setError, router);
+
   const registerMutation = useRegisterMutation(setError, setIsLogin);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -2,8 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, logoutUser, User } from "./auth_api_fetcher";
 
-import { useRouter } from "next/navigation";
 import { loginUser, registerUser } from "./auth_api_fetcher";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export const useGetProfile = () => {
   return useQuery<User>({
@@ -23,20 +23,20 @@ export const useLogout = () => {
   });
 };
 
-export const useLoginMutation = (setError: (msg: string) => void) => {
-  const router = useRouter();
-
+export const useLoginMutation = (
+  setError: (msg: string) => void,
+  router: AppRouterInstance
+) => {
   return useMutation({
     mutationFn: loginUser,
     onSuccess: () => {
-      router.replace("/dashboard");
+      router.replace("/dashboard"); 
     },
-    onError: (err) => {
-      setError(err.message);
+    onError: (err: any) => {
+      setError(err.message || "Something went wrong");
     },
   });
 };
-
 export const useRegisterMutation = (
   setError: (msg: string) => void,
   setIsLogin: (val: boolean) => void
