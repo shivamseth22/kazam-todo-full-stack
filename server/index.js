@@ -17,7 +17,7 @@ const port = process.env.PORT
 
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:3001" , "https://kazam-todo-full-stack.vercel.app"],
+  origin: ["http://localhost:3000", "http://localhost:3001" , "https://kazam-todo-full-stack.vercel.app/"],
   credentials: true,
 }));
 
