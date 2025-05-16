@@ -10,13 +10,19 @@ import {
   useUpdateTodo,
   useGetAllTodos,
 } from "@/api-handling/todo/todos_api";
-import {  Todo } from "@/interface/todo.type";
+import { Todo } from "@/interface/todo.type";
 
 const TodoDashboard = () => {
   const [filter, setFilter] = useState("all");
   const [draggedTodo, setDraggedTodo] = useState<Todo | null>(null);
 
-  const { data: todos = [], isLoading } = useGetAllTodos();
+  const { data: fetchedTodos = [], isLoading } = useGetAllTodos();
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  // Sync local state when fetchedTodos changes
+  React.useEffect(() => {
+    setTodos(fetchedTodos);
+  }, [fetchedTodos]);
   const createMutation = useCreateTodo();
   const deleteMutation = useDeleteTodo();
   const updateMutation = useUpdateTodo();
@@ -34,24 +40,28 @@ const TodoDashboard = () => {
     updateMutation.mutate({ id, updateData: { status: newStatus } });
   };
 
-  const handleDragStart = (todo: Todo) => {
-    setDraggedTodo(todo);
-  };
+const handleDragStart = (e: React.DragEvent<HTMLDivElement>, todo: Todo) => {
+  e.dataTransfer.setData("text/plain", todo._id);
+  setDraggedTodo(todo);
+};
 
-  const handleDrop = (targetId: string) => {
-    if (draggedTodo) {
-      const draggedIndex = todos.findIndex((t) => t._id === draggedTodo._id);
-      const targetIndex = todos.findIndex((t) => t._id === targetId);
-      if (draggedIndex === -1 || targetIndex === -1) return;
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetId: string) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData("text/plain");
+    if (!draggedId) return;
 
-      const newTodos = [...todos];
-      [newTodos[draggedIndex], newTodos[targetIndex]] = [
-        newTodos[targetIndex],
-        newTodos[draggedIndex],
-      ];
-      // Optionally send new order to backend here
-      setDraggedTodo(null);
-    }
+    const draggedIndex = todos.findIndex((t) => t._id === draggedId);
+    const targetIndex = todos.findIndex((t) => t._id === targetId);
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const newTodos = [...todos];
+    [newTodos[draggedIndex], newTodos[targetIndex]] = [
+      newTodos[targetIndex],
+      newTodos[draggedIndex],
+    ];
+
+    setTodos(newTodos);
+    setDraggedTodo(null);
   };
 
   const filteredTodos = todos.filter((todo) => {
@@ -92,8 +102,9 @@ const TodoDashboard = () => {
                 key={todo._id}
                 className="p-4 shadow-md bg-white rounded-md"
                 draggable
-                onDragStart={() => handleDragStart(todo)}
-                onDrop={() => handleDrop(todo._id)}
+                onDragStart={(e) => handleDragStart(e, todo)}
+
+                onDrop={(e) => handleDrop(e, todo._id)} // Pass event and id here
                 onDragOver={(e) => e.preventDefault()}
               >
                 <TodoCard
